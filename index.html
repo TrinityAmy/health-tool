@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>健康内容助手</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap');
+
+  :root {
+    --ink: #1a1a18;
+    --paper: #f5f0e8;
+    --paper2: #ede7d8;
+    --accent: #c8432a;
+    --accent2: #2a7c6f;
+    --muted: #7a7060;
+    --border: #cfc5b0;
+    --card: #faf6ee;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Serif SC', serif;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 24px 40px;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    border-bottom: 3px solid var(--accent);
+  }
+
+  header h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 24px;
+    font-weight: 400;
+  }
+
+  header span {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 36px 24px 80px;
+  }
+
+  .category-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 24px 0 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .category-label:first-of-type { margin-top: 0; }
+
+  .channel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+  }
+
+  .channel-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .channel-card:hover { background: var(--paper2); border-color: var(--ink); }
+
+  .channel-card.active {
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+
+  .channel-card.active .ch-name { color: var(--paper); }
+  .channel-card.active .ch-tag { color: #c8a07a; }
+
+  .ch-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.35;
+    margin-bottom: 3px;
+  }
+
+  .ch-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--paper);
+    border-top: 1px solid var(--border);
+    padding: 14px 40px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    z-index: 100;
+  }
+
+  .sel-display {
+    flex: 1;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .sel-display strong { color: var(--ink); }
+
+  select {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 9px 14px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: var(--ink);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .fetch-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 28px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+  }
+
+  .fetch-btn:hover { opacity: 0.88; }
+  .fetch-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .status {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin: 16px 0;
+    min-height: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .spinner {
+    width: 12px; height: 12px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 18px;
+    cursor: pointer;
+  }
+
+  .card-header:hover { background: var(--paper2); }
+
+  .card-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    width: 22px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .card-meta { flex: 1; min-width: 0; }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+
+  .card-info {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .card-toggle {
+    font-size: 20px;
+    color: var(--muted);
+    flex-shrink: 0;
+    transition: transform 0.2s;
+    line-height: 1;
+  }
+
+  .card-toggle.open { transform: rotate(45deg); }
+
+  .card-body {
+    display: none;
+    padding: 4px 18px 18px 52px;
+    border-top: 1px solid var(--border);
+  }
+
+  .card-body.open { display: block; }
+
+  .section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 16px 0 8px;
+  }
+
+  .key-points {
+    font-size: 14px;
+    line-height: 1.85;
+    white-space: pre-wrap;
+  }
+
+  .draft-box {
+    background: var(--paper2);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 4px 4px 0;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.9;
+    white-space: pre-wrap;
+  }
+
+  .copy-btn {
+    margin-top: 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { border-color: var(--ink); color: var(--ink); }
+  .copy-btn.copied { border-color: var(--accent2); color: var(--accent2); }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .tag {
+    background: var(--paper2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 3px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+  }
+
+  .error-msg {
+    background: #fff0ee;
+    border: 1px solid #e8b8b0;
+    border-radius: 4px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--accent);
+    margin: 12px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>健康内容助手</h1>
+  <span>YouTube → 小红书草稿</span>
+</header>
+
+<div class="main">
+
+  <div class="category-label">科学硬核派</div>
+  <div class="channel-grid" id="g-science"></div>
+
+  <div class="category-label">女性健康专项</div>
+  <div class="channel-grid" id="g-women"></div>
+
+  <div class="category-label">顶级访谈节目</div>
+  <div class="channel-grid" id="g-interview"></div>
+
+  <div class="category-label">营养 & 生物黑客</div>
+  <div class="channel-grid" id="g-nutrition"></div>
+
+  <div class="status" id="status"></div>
+  <div id="errorBox"></div>
+  <div id="results"><div class="empty">选择频道后点击抓取，直接生成小红书草稿</div></div>
+
+</div>
+
+<div class="controls">
+  <div class="sel-display" id="selDisplay">请先选择一个频道</div>
+  <select id="countSelect">
+    <option value="3">最新 3 集</option>
+    <option value="5" selected>最新 5 集</option>
+    <option value="10">最新 10 集</option>
+  </select>
+  <button class="fetch-btn" id="fetchBtn" onclick="fetchContent()" disabled>抓取并生成草稿</button>
+</div>
+
+<script>
+const CHANNELS = {
+  'g-science': [
+    { name: 'Huberman Lab', tag: '神经科学 · 睡眠 · 激素' },
+    { name: 'Peter Attia – The Drive', tag: '长寿 · 代谢 · 心血管' },
+    { name: 'Found My Fitness – Rhonda Patrick', tag: '营养生化 · 抗衰老' },
+    { name: 'Dr. Mark Hyman', tag: '功能医学 · 肠道健康' },
+    { name: 'ZOE – Tim Spector', tag: '肠道微生物 · 个性化营养' },
+  ],
+  'g-women': [
+    { name: 'Dr. Mindy Pelz', tag: '女性断食 · 激素 · 更年期' },
+    { name: 'Mel Robbins', tag: '心理健康 · 习惯 · 表现' },
+  ],
+  'g-interview': [
+    { name: 'The Diary of a CEO – Steven Bartlett', tag: '顶级访谈 · 健康 · 表现' },
+    { name: 'The Proof – Simon Hill', tag: '营养科学访谈' },
+    { name: 'On Purpose – Jay Shetty', tag: '心理健康 · 正念' },
+  ],
+  'g-nutrition': [
+    { name: 'Ben Greenfield Life', tag: '生物黑客 · 运动表现' },
+    { name: 'NutritionFacts.org – Dr. Greger', tag: '植物营养 · 疾病预防' },
+    { name: 'Shawn Stevenson – The Model Health Show', tag: '睡眠 · 代谢 · 心理' },
+  ],
+};
+
+let selectedChannel = null;
+
+Object.entries(CHANNELS).forEach(([gridId, channels]) => {
+  const grid = document.getElementById(gridId);
+  channels.forEach(ch => {
+    const card = document.createElement('div');
+    card.className = 'channel-card';
+    card.innerHTML = `<div class="ch-name">${ch.name}</div><div class="ch-tag">${ch.tag}</div>`;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.channel-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      selectedChannel = ch.name;
+      document.getElementById('selDisplay').innerHTML = `已选：<strong>${ch.name}</strong>`;
+      document.getElementById('fetchBtn').disabled = false;
+      document.getElementById('results').innerHTML = '<div class="empty">点击右下角按钮生成草稿</div>';
+      document.getElementById('errorBox').innerHTML = '';
+      document.getElementById('status').innerHTML = '';
+    });
+    grid.appendChild(card);
+  });
+});
+
+function setStatus(msg, loading = false) {
+  document.getElementById('status').innerHTML = loading
+    ? `<div class="spinner"></div>${msg}` : msg;
+}
+
+async function fetchContent() {
+  if (!selectedChannel) return;
+  const count = document.getElementById('countSelect').value;
+
+  document.getElementById('errorBox').innerHTML = '';
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('fetchBtn').disabled = true;
+  setStatus('正在生成草稿，稍等…', true);
+
+  const prompt = `你是我的健康内容研究助手，帮我整理 YouTube 频道「${selectedChannel}」最新 ${count} 期内容，并生成小红书草稿。
+
+目标读者：30-45岁中国女性，关注健康/抗衰老/激素/睡眠/情绪/营养，有知识背景但非医学专业。
+
+草稿风格：像懂科学的好朋友分享，不是专家讲课。开头有吸引力，有具体可操作建议，适当用emoji，用"我"不用"小编"，把复杂概念用生活化语言解释。
+
+只返回JSON数组，不要任何其他文字：
+[{"title":"原视频英文标题","date":"发布时间","topic":"核心话题（中文一句）","keyPoints":["要点1","要点2","要点3","要点4","要点5"],"xhsTitle":"小红书标题（emoji+20字内）","xhsDraft":"小红书正文（500字内，口语化，结尾有互动引导）","tags":["标签1","标签2","标签3","标签4","标签5"]}]`;
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) throw new Error(`服务器错误 ${res.status}`);
+
+    const data = await res.json();
+    const raw = data.choices?.[0]?.message?.content || '';
+    const match = raw.match(/\[[\s\S]*\]/);
+    if (!match) throw new Error('解析失败，请重试');
+
+    const items = JSON.parse(match[0]);
+    setStatus(`已生成 ${items.length} 篇草稿，点击展开查看`);
+    renderResults(items);
+
+  } catch (err) {
+    setStatus('');
+    document.getElementById('errorBox').innerHTML =
+      `<div class="error-msg">出错了：${err.message}</div>`;
+  } finally {
+    document.getElementById('fetchBtn').disabled = false;
+  }
+}
+
+function toggle(i) {
+  document.getElementById(`body-${i}`).classList.toggle('open');
+  document.getElementById(`toggle-${i}`).classList.toggle('open');
+}
+
+async function copyDraft(i, btnId) {
+  const text = document.getElementById(`draft-${i}`).textContent;
+  await navigator.clipboard.writeText(text);
+  const btn = document.getElementById(btnId);
+  btn.textContent = '已复制 ✓';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = '复制草稿'; btn.classList.remove('copied'); }, 2000);
+}
+
+function renderResults(items) {
+  document.getElementById('results').innerHTML = items.map((item, i) => `
+    <div class="result-card">
+      <div class="card-header" onclick="toggle(${i})">
+        <div class="card-num">0${i+1}</div>
+        <div class="card-meta">
+          <div class="card-title">${item.xhsTitle || item.title}</div>
+          <div class="card-info">${item.date || ''} · ${item.topic || ''}</div>
+        </div>
+        <div class="card-toggle" id="toggle-${i}">+</div>
+      </div>
+      <div class="card-body" id="body-${i}">
+        <div class="section-title">核心要点</div>
+        <div class="key-points">${(item.keyPoints || []).map((p, j) => `${j+1}. ${p}`).join('\n')}</div>
+        <div class="section-title">小红书草稿</div>
+        <div class="draft-box" id="draft-${i}">${item.xhsDraft || ''}</div>
+        <button class="copy-btn" id="copybtn-${i}" onclick="copyDraft(${i}, 'copybtn-${i}')">复制草稿</button>
+        <div class="section-title">原视频标题</div>
+        <div class="key-points" style="font-size:12px;color:var(--muted)">${item.title}</div>
+        <div class="section-title">话题标签</div>
+        <div class="tags">${(item.tags || []).map(t => `<span class="tag">#${t}</span>`).join('')}</div>
+      </div>
+    </div>
+  `).join('');
+}
+</script>
+</body>
+</html>
