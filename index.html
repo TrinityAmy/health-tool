@@ -437,11 +437,8 @@ async function fetchContent() {
     if (!res.ok) throw new Error(`服务器错误 ${res.status}`);
 
     const data = await res.json();
-    const raw = data.choices?.[0]?.message?.content || '';
-    const match = raw.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error('解析失败，请重试');
-
-    const items = JSON.parse(match[0]);
+    if (!data.ok) throw new Error(data.error || '解析失败，请重试');
+    const items = data.data;
     setStatus(`已生成 ${items.length} 篇草稿，点击展开查看`);
     renderResults(items);
 
