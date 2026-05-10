@@ -4,8 +4,8 @@ const PODCAST_RSS = {
   'Found My Fitness – Rhonda Patrick': 'https://feeds.simplecast.com/4T39_jAj',
   'Dr. Mark Hyman': 'https://feeds.megaphone.fm/SYNGR4116446318',
   'Dr. Mindy Pelz': 'https://feeds.buzzsprout.com/677097.rss',
-  'Mel Robbins': 'https://feeds.megaphone.fm/melrobbins',
-  'The Diary of a CEO – Steven Bartlett': 'https://feeds.megaphone.fm/MTVG1649748487',
+  'Mel Robbins': 'https://feeds.simplecast.com/UCwaTX1J',
+  'The Diary of a CEO – Steven Bartlett': 'https://feeds.megaphone.fm/DOAC',
   'The Proof – Simon Hill': 'https://feeds.simplecast.com/rg0cqmFH',
   'On Purpose – Jay Shetty': 'https://feeds.megaphone.fm/onpurpose',
   'Ben Greenfield Life': 'https://feeds.megaphone.fm/bengreenfield',
@@ -38,10 +38,10 @@ export default async function handler(req, res) {
         'Accept': 'application/rss+xml, application/xml, text/xml, */*'
       }
     });
-    if (!rssRes.ok) throw new Error(`RSS 返回 ${rssRes.status} - ${rssUrl}`);
+    if (!rssRes.ok) throw new Error(`RSS 返回 ${rssRes.status}`);
     const xml = await rssRes.text();
     if (!xml.includes('<item>') && !xml.includes('<entry>')) {
-      throw new Error('RSS 内容为空或格式异常');
+      throw new Error('RSS 内容格式异常');
     }
 
     const episodes = [];
