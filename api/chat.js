@@ -110,7 +110,7 @@ export default async function handler(req, res) {
     prompt = `你是我的健康内容研究助手。请根据你了解的 YouTube 频道「${channel}」，列出该频道最近 ${count} 期内容，并生成小红书草稿。请尽量使用你知道的真实内容。`;
   }
 
-  prompt += `\n\n目标读者：30-45岁中国女性，关注健康/抗衰老/激素/睡眠/情绪/营养，有知识背景但非医学专业。\n\n草稿风格：像懂科学的好朋友分享，开头有吸引力，有具体可操作建议，适当用emoji，用"我"不用"小编"。\n\n只返回JSON数组，不要任何其他文字：\n[{"title":"原视频英文标题","date":"发布日期","topic":"核心话题（中文一句）","url":"视频链接或空字符串","keyPoints":["要点1","要点2","要点3","要点4","要点5"],"xhsTitle":"小红书标题（emoji+20字内）","xhsDraft":"小红书正文（500字内，口语化，结尾有互动引导）","tags":["标签1","标签2","标签3","标签4","标签5"]}]`;
+  prompt += `\n\n目标读者：30-45岁中国女性，关注健康/抗衰老/激素/睡眠/情绪/营养，有知识背景但非医学专业。\n\n草稿风格：像懂科学的好朋友分享，开头有吸引力，有具体可操作建议，适当用emoji，用"我"不用"小编"。\n\n只返回JSON数组，不要任何其他文字：\n[{"title":"原视频英文标题","date":"发布日期","topic":"核心话题（中文一句）","url":"视频链接或空字符串","keyPoints":["要点1","要点2","要点3","要点4","要点5"],"xhsTitle":"小红书标题（emoji+20字内）","xhsDraft":"小红书正文（300字内，口语化，结尾有互动引导）","tags":["标签1","标签2","标签3","标签4","标签5"]}]`;
 
   try {
     const aiRes = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -121,7 +121,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'deepseek-chat',
-        max_tokens: 6000,
+        max_tokens: 3000,
         temperature: 0.7,
         messages: [
           {
