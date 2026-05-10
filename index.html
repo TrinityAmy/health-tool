@@ -148,16 +148,12 @@ async function fetchVideos(){
   setStatus('正在抓取最新视频列表…',true);
 
   try{
-    const channelId=CHANNEL_IDS[selected];
-    const proxyUrl=`https://api.allorigins.win/get?url=${encodeURIComponent('https://www.youtube.com/feeds/videos.xml?channel_id='+channelId)}`;
-    const res=await fetch(proxyUrl);
-    if(!res.ok) throw new Error(`抓取失败 ${res.status}`);
+    const res=await fetch('/api/rss',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channel:selected,count})});
     const data=await res.json();
-    const xml=data.contents;
-    if(!xml||!xml.includes('<entry>')) throw new Error('RSS 内容为空，请稍后重试');
-    const videos=parseRSS(xml,count);
-    if(!videos.length) throw new Error('没有找到视频');
-    setStatus(`已获取 ${videos.length} 条最新视频，点击「生成草稿」处理`);
+    if(!data.ok) throw new Error(data.error);
+    const videos=data.videos;
+    if(!videos.length) throw new Error('没有找到内容');
+    setStatus(`已获取 ${videos.length} 期最新内容，点击「生成草稿」处理`);
     renderVideos(videos);
   }catch(err){
     setStatus('');
