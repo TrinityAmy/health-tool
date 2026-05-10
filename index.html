@@ -6,481 +6,187 @@
 <title>健康内容助手</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap');
-
-  :root {
-    --ink: #1a1a18;
-    --paper: #f5f0e8;
-    --paper2: #ede7d8;
-    --accent: #c8432a;
-    --accent2: #2a7c6f;
-    --muted: #7a7060;
-    --border: #cfc5b0;
-    --card: #faf6ee;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'Noto Serif SC', serif;
-    min-height: 100vh;
-  }
-
-  header {
-    background: var(--ink);
-    color: var(--paper);
-    padding: 24px 40px;
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-    border-bottom: 3px solid var(--accent);
-  }
-
-  header h1 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 24px;
-    font-weight: 400;
-  }
-
-  header span {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--accent);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .main {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 36px 24px 80px;
-  }
-
-  .category-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 24px 0 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .category-label:first-of-type { margin-top: 0; }
-
-  .channel-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 8px;
-  }
-
-  .channel-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 10px 14px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .channel-card:hover { background: var(--paper2); border-color: var(--ink); }
-
-  .channel-card.active {
-    background: var(--ink);
-    border-color: var(--ink);
-  }
-
-  .channel-card.active .ch-name { color: var(--paper); }
-  .channel-card.active .ch-tag { color: #c8a07a; }
-
-  .ch-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink);
-    line-height: 1.35;
-    margin-bottom: 3px;
-  }
-
-  .ch-tag {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-  }
-
-  .controls {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--paper);
-    border-top: 1px solid var(--border);
-    padding: 14px 40px;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    z-index: 100;
-  }
-
-  .sel-display {
-    flex: 1;
-    font-size: 13px;
-    color: var(--muted);
-  }
-
-  .sel-display strong { color: var(--ink); }
-
-  select {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 9px 14px;
-    font-family: 'Noto Serif SC', serif;
-    font-size: 13px;
-    color: var(--ink);
-    outline: none;
-    cursor: pointer;
-  }
-
-  .fetch-btn {
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 10px 28px;
-    font-family: 'Noto Serif SC', serif;
-    font-size: 14px;
-    cursor: pointer;
-    transition: opacity 0.15s;
-    white-space: nowrap;
-  }
-
-  .fetch-btn:hover { opacity: 0.88; }
-  .fetch-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-  .status {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--muted);
-    margin: 16px 0;
-    min-height: 18px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .spinner {
-    width: 12px; height: 12px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    flex-shrink: 0;
-  }
-
-  .result-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: 10px;
-    overflow: hidden;
-  }
-
-  .card-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 16px 18px;
-    cursor: pointer;
-  }
-
-  .card-header:hover { background: var(--paper2); }
-
-  .card-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    width: 22px;
-    flex-shrink: 0;
-    padding-top: 2px;
-  }
-
-  .card-meta { flex: 1; min-width: 0; }
-
-  .card-title {
-    font-size: 15px;
-    font-weight: 600;
-    line-height: 1.4;
-    margin-bottom: 4px;
-  }
-
-  .card-info {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-  }
-
-  .card-toggle {
-    font-size: 20px;
-    color: var(--muted);
-    flex-shrink: 0;
-    transition: transform 0.2s;
-    line-height: 1;
-  }
-
-  .card-toggle.open { transform: rotate(45deg); }
-
-  .card-body {
-    display: none;
-    padding: 4px 18px 18px 52px;
-    border-top: 1px solid var(--border);
-  }
-
-  .card-body.open { display: block; }
-
-  .section-title {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 16px 0 8px;
-  }
-
-  .key-points {
-    font-size: 14px;
-    line-height: 1.85;
-    white-space: pre-wrap;
-  }
-
-  .draft-box {
-    background: var(--paper2);
-    border-left: 3px solid var(--accent2);
-    border-radius: 0 4px 4px 0;
-    padding: 14px 16px;
-    font-size: 14px;
-    line-height: 1.9;
-    white-space: pre-wrap;
-  }
-
-  .copy-btn {
-    margin-top: 10px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 6px 16px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .copy-btn:hover { border-color: var(--ink); color: var(--ink); }
-  .copy-btn.copied { border-color: var(--accent2); color: var(--accent2); }
-
-  .tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 4px;
-  }
-
-  .tag {
-    background: var(--paper2);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 3px 10px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-  }
-
-  .empty {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--muted);
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-  }
-
-  .error-msg {
-    background: #fff0ee;
-    border: 1px solid #e8b8b0;
-    border-radius: 4px;
-    padding: 12px 16px;
-    font-size: 13px;
-    color: var(--accent);
-    margin: 12px 0;
-  }
+  :root{--ink:#1a1a18;--paper:#f5f0e8;--paper2:#ede7d8;--accent:#c8432a;--accent2:#2a7c6f;--muted:#7a7060;--border:#cfc5b0;--card:#faf6ee}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:'Noto Serif SC',serif;min-height:100vh}
+  header{background:var(--ink);color:var(--paper);padding:24px 40px;display:flex;align-items:baseline;gap:16px;border-bottom:3px solid var(--accent)}
+  header h1{font-family:'Instrument Serif',serif;font-size:24px;font-weight:400}
+  header span{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase}
+  .main{max-width:900px;margin:0 auto;padding:36px 24px 100px}
+  .cat{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:24px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+  .cat:first-of-type{margin-top:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+  .ch{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px 14px;cursor:pointer;transition:all .15s}
+  .ch:hover{background:var(--paper2);border-color:var(--ink)}
+  .ch.active{background:var(--ink);border-color:var(--ink)}
+  .ch.active .cn{color:var(--paper)}.ch.active .ct{color:#c8a07a}
+  .cn{font-size:13px;font-weight:600;color:var(--ink);line-height:1.35;margin-bottom:3px}
+  .ct{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
+  .bar{position:fixed;bottom:0;left:0;right:0;background:var(--paper);border-top:1px solid var(--border);padding:14px 40px;display:flex;gap:12px;align-items:center;z-index:100}
+  .sel{flex:1;font-size:13px;color:var(--muted)}
+  .sel strong{color:var(--ink)}
+  select{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:9px 14px;font-family:'Noto Serif SC',serif;font-size:13px;color:var(--ink);outline:none;cursor:pointer}
+  .btn{background:var(--accent);color:white;border:none;border-radius:4px;padding:10px 28px;font-family:'Noto Serif SC',serif;font-size:14px;cursor:pointer;transition:opacity .15s;white-space:nowrap}
+  .btn:hover{opacity:.88}.btn:disabled{opacity:.35;cursor:not-allowed}
+  .status{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin:16px 0;min-height:18px;display:flex;align-items:center;gap:8px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spin{width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+  .video-card{background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+  .vc-head{display:flex;align-items:flex-start;gap:12px;padding:14px 16px}
+  .vc-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);width:22px;flex-shrink:0;padding-top:2px}
+  .vc-meta{flex:1;min-width:0}
+  .vc-title{font-size:14px;font-weight:600;line-height:1.4;margin-bottom:3px}
+  .vc-info{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+  .vc-btn{background:transparent;border:1px solid var(--border);border-radius:4px;padding:6px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
+  .vc-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .vc-btn.loading{opacity:.5;cursor:not-allowed}
+  .vc-body{display:none;padding:4px 16px 16px 50px;border-top:1px solid var(--border)}
+  .vc-body.open{display:block}
+  .sec{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+  .kp{font-size:13px;line-height:1.85;white-space:pre-wrap}
+  .draft{background:var(--paper2);border-left:3px solid var(--accent2);border-radius:0 4px 4px 0;padding:14px 16px;font-size:14px;line-height:1.9;white-space:pre-wrap}
+  .copy{margin-top:8px;background:transparent;border:1px solid var(--border);border-radius:4px;padding:6px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s}
+  .copy:hover{border-color:var(--ink);color:var(--ink)}.copy.done{border-color:var(--accent2);color:var(--accent2)}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+  .tag{background:var(--paper2);border:1px solid var(--border);border-radius:3px;padding:3px 9px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+  .empty{text-align:center;padding:60px 20px;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px}
+  .err{background:#fff0ee;border:1px solid #e8b8b0;border-radius:4px;padding:12px 16px;font-size:13px;color:var(--accent);margin:12px 0}
+  .badge{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;border-radius:3px;margin-left:8px}
+  .badge.live{background:#d4edda;color:#2a7c6f}
+  .badge.ai{background:#fff3cd;color:#856404}
 </style>
 </head>
 <body>
-
 <header>
   <h1>健康内容助手</h1>
   <span>YouTube → 小红书草稿</span>
 </header>
-
 <div class="main">
-
-  <div class="category-label">科学硬核派</div>
-  <div class="channel-grid" id="g-science"></div>
-
-  <div class="category-label">女性健康专项</div>
-  <div class="channel-grid" id="g-women"></div>
-
-  <div class="category-label">顶级访谈节目</div>
-  <div class="channel-grid" id="g-interview"></div>
-
-  <div class="category-label">营养 & 生物黑客</div>
-  <div class="channel-grid" id="g-nutrition"></div>
-
+  <div class="cat">科学硬核派</div>
+  <div class="grid" id="g1"></div>
+  <div class="cat">女性健康专项</div>
+  <div class="grid" id="g2"></div>
+  <div class="cat">顶级访谈节目</div>
+  <div class="grid" id="g3"></div>
+  <div class="cat">营养 & 生物黑客</div>
+  <div class="grid" id="g4"></div>
   <div class="status" id="status"></div>
-  <div id="errorBox"></div>
-  <div id="results"><div class="empty">选择频道后点击抓取，直接生成小红书草稿</div></div>
-
+  <div id="errBox"></div>
+  <div id="results"><div class="empty">选择频道后点击抓取，先获取最新视频列表，再逐一生成草稿</div></div>
 </div>
-
-<div class="controls">
-  <div class="sel-display" id="selDisplay">请先选择一个频道</div>
-  <select id="countSelect">
+<div class="bar">
+  <div class="sel" id="selDisplay">请先选择一个频道</div>
+  <select id="countSel">
     <option value="3" selected>最新 3 集</option>
     <option value="5">最新 5 集</option>
-    <option value="10">最新 10 集</option>
   </select>
-  <button class="fetch-btn" id="fetchBtn" onclick="fetchContent()" disabled>抓取并生成草稿</button>
+  <button class="btn" id="fetchBtn" onclick="fetchVideos()" disabled>获取最新视频</button>
 </div>
-
 <script>
-const CHANNELS = {
-  'g-science': [
-    { name: 'Huberman Lab', tag: '神经科学 · 睡眠 · 激素' },
-    { name: 'Peter Attia – The Drive', tag: '长寿 · 代谢 · 心血管' },
-    { name: 'Found My Fitness – Rhonda Patrick', tag: '营养生化 · 抗衰老' },
-    { name: 'Dr. Mark Hyman', tag: '功能医学 · 肠道健康' },
-    { name: 'ZOE – Tim Spector', tag: '肠道微生物 · 个性化营养' },
-  ],
-  'g-women': [
-    { name: 'Dr. Mindy Pelz', tag: '女性断食 · 激素 · 更年期' },
-    { name: 'Mel Robbins', tag: '心理健康 · 习惯 · 表现' },
-  ],
-  'g-interview': [
-    { name: 'The Diary of a CEO – Steven Bartlett', tag: '顶级访谈 · 健康 · 表现' },
-    { name: 'The Proof – Simon Hill', tag: '营养科学访谈' },
-    { name: 'On Purpose – Jay Shetty', tag: '心理健康 · 正念' },
-  ],
-  'g-nutrition': [
-    { name: 'Ben Greenfield Life', tag: '生物黑客 · 运动表现' },
-    { name: 'NutritionFacts.org – Dr. Greger', tag: '植物营养 · 疾病预防' },
-    { name: 'Shawn Stevenson – The Model Health Show', tag: '睡眠 · 代谢 · 心理' },
-  ],
+const CHANNELS={
+  g1:[{n:'Huberman Lab',t:'神经科学 · 睡眠 · 激素'},{n:'Peter Attia – The Drive',t:'长寿 · 代谢 · 心血管'},{n:'Found My Fitness – Rhonda Patrick',t:'营养生化 · 抗衰老'},{n:'Dr. Mark Hyman',t:'功能医学 · 肠道健康'},{n:'ZOE – Tim Spector',t:'肠道微生物 · 个性化营养'}],
+  g2:[{n:'Dr. Mindy Pelz',t:'女性断食 · 激素 · 更年期'},{n:'Mel Robbins',t:'心理健康 · 习惯 · 表现'}],
+  g3:[{n:'The Diary of a CEO – Steven Bartlett',t:'顶级访谈 · 健康 · 表现'},{n:'The Proof – Simon Hill',t:'营养科学访谈'},{n:'On Purpose – Jay Shetty',t:'心理健康 · 正念'}],
+  g4:[{n:'Ben Greenfield Life',t:'生物黑客 · 运动表现'},{n:'NutritionFacts.org – Dr. Greger',t:'植物营养 · 疾病预防'},{n:'Shawn Stevenson – The Model Health Show',t:'睡眠 · 代谢 · 心理'}]
 };
-
-let selectedChannel = null;
-
-Object.entries(CHANNELS).forEach(([gridId, channels]) => {
-  const grid = document.getElementById(gridId);
-  channels.forEach(ch => {
-    const card = document.createElement('div');
-    card.className = 'channel-card';
-    card.innerHTML = `<div class="ch-name">${ch.name}</div><div class="ch-tag">${ch.tag}</div>`;
-    card.addEventListener('click', () => {
-      document.querySelectorAll('.channel-card').forEach(c => c.classList.remove('active'));
+let selected=null;
+Object.entries(CHANNELS).forEach(([gid,chs])=>{
+  const grid=document.getElementById(gid);
+  chs.forEach(ch=>{
+    const card=document.createElement('div');
+    card.className='ch';
+    card.innerHTML=`<div class="cn">${ch.n}</div><div class="ct">${ch.t}</div>`;
+    card.onclick=()=>{
+      document.querySelectorAll('.ch').forEach(c=>c.classList.remove('active'));
       card.classList.add('active');
-      selectedChannel = ch.name;
-      document.getElementById('selDisplay').innerHTML = `已选：<strong>${ch.name}</strong>`;
-      document.getElementById('fetchBtn').disabled = false;
-      document.getElementById('results').innerHTML = '<div class="empty">点击右下角按钮生成草稿</div>';
-      document.getElementById('errorBox').innerHTML = '';
-      document.getElementById('status').innerHTML = '';
-    });
+      selected=ch.n;
+      document.getElementById('selDisplay').innerHTML=`已选：<strong>${ch.n}</strong>`;
+      document.getElementById('fetchBtn').disabled=false;
+      document.getElementById('results').innerHTML='<div class="empty">点击右下角按钮获取最新视频</div>';
+      document.getElementById('errBox').innerHTML='';
+      document.getElementById('status').innerHTML='';
+    };
     grid.appendChild(card);
   });
 });
-
-function setStatus(msg, loading = false) {
-  document.getElementById('status').innerHTML = loading
-    ? `<div class="spinner"></div>${msg}` : msg;
+function setStatus(msg,loading=false){
+  document.getElementById('status').innerHTML=loading?`<div class="spin"></div>${msg}`:msg;
 }
-
-async function fetchContent() {
-  if (!selectedChannel) return;
-  const count = document.getElementById('countSelect').value;
-
-  document.getElementById('errorBox').innerHTML = '';
-  document.getElementById('results').innerHTML = '';
-  document.getElementById('fetchBtn').disabled = true;
-  setStatus('正在抓取最新内容并生成草稿，稍等 20-30 秒…', true);
-
-  try {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        channel: selectedChannel,
-        count: parseInt(count)
-      })
-    });
-
-    if (!res.ok) throw new Error(`服务器错误 ${res.status}`);
-
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error || '解析失败，请重试');
-    const items = data.data;
-    setStatus(`已生成 ${items.length} 篇草稿，点击展开查看`);
-    renderResults(items);
-
-  } catch (err) {
+async function fetchVideos(){
+  if(!selected)return;
+  const count=document.getElementById('countSel').value;
+  document.getElementById('errBox').innerHTML='';
+  document.getElementById('results').innerHTML='';
+  document.getElementById('fetchBtn').disabled=true;
+  setStatus('正在抓取最新视频列表…',true);
+  try{
+    const res=await fetch('/api/rss',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channel:selected,count:parseInt(count)})});
+    const data=await res.json();
+    if(!data.ok)throw new Error(data.error);
+    setStatus(`已获取 ${data.videos.length} 条视频，点击「生成草稿」逐一处理`);
+    renderVideos(data.videos);
+  }catch(err){
     setStatus('');
-    document.getElementById('errorBox').innerHTML =
-      `<div class="error-msg">出错了：${err.message}</div>`;
-  } finally {
-    document.getElementById('fetchBtn').disabled = false;
+    document.getElementById('errBox').innerHTML=`<div class="err">出错了：${err.message}</div>`;
+  }finally{
+    document.getElementById('fetchBtn').disabled=false;
   }
 }
-
-function toggle(i) {
-  document.getElementById(`body-${i}`).classList.toggle('open');
-  document.getElementById(`toggle-${i}`).classList.toggle('open');
-}
-
-async function copyDraft(i, btnId) {
-  const text = document.getElementById(`draft-${i}`).textContent;
-  await navigator.clipboard.writeText(text);
-  const btn = document.getElementById(btnId);
-  btn.textContent = '已复制 ✓';
-  btn.classList.add('copied');
-  setTimeout(() => { btn.textContent = '复制草稿'; btn.classList.remove('copied'); }, 2000);
-}
-
-function renderResults(items) {
-  document.getElementById('results').innerHTML = items.map((item, i) => `
-    <div class="result-card">
-      <div class="card-header" onclick="toggle(${i})">
-        <div class="card-num">0${i+1}</div>
-        <div class="card-meta">
-          <div class="card-title">${item.xhsTitle || item.title}</div>
-          <div class="card-info">${item.date || ''} · ${item.topic || ''}</div>
+function renderVideos(videos){
+  document.getElementById('results').innerHTML=videos.map((v,i)=>`
+    <div class="video-card" id="vc${i}">
+      <div class="vc-head">
+        <div class="vc-num">0${i+1}</div>
+        <div class="vc-meta">
+          <div class="vc-title">${v.title}</div>
+          <div class="vc-info">${v.published} · <a href="${v.url}" target="_blank" style="color:var(--accent2)">YouTube ↗</a></div>
         </div>
-        <div class="card-toggle" id="toggle-${i}">+</div>
+        <button class="vc-btn" id="dbtn${i}" onclick="generateDraft(${i})">生成草稿</button>
       </div>
-      <div class="card-body" id="body-${i}">
-        <div class="section-title">核心要点</div>
-        <div class="key-points">${(item.keyPoints || []).map((p, j) => `${j+1}. ${p}`).join('\n')}</div>
-        <div class="section-title">小红书草稿</div>
-        <div class="draft-box" id="draft-${i}">${item.xhsDraft || ''}</div>
-        <button class="copy-btn" id="copybtn-${i}" onclick="copyDraft(${i}, 'copybtn-${i}')">复制草稿</button>
-        <div class="section-title">原视频标题</div>
-        <div class="key-points" style="font-size:12px;color:var(--muted)">${item.title}</div>
-        <div class="section-title">话题标签</div>
-        <div class="tags">${(item.tags || []).map(t => `<span class="tag">#${t}</span>`).join('')}</div>
-      </div>
+      <div class="vc-body" id="vb${i}"></div>
     </div>
   `).join('');
+  window._videos=videos;
+}
+async function generateDraft(i){
+  const btn=document.getElementById(`dbtn${i}`);
+  const body=document.getElementById(`vb${i}`);
+  btn.textContent='生成中…';
+  btn.classList.add('loading');
+  btn.disabled=true;
+  try{
+    const res=await fetch('/api/draft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channel:selected,video:window._videos[i]})});
+    const data=await res.json();
+    if(!data.ok)throw new Error(data.error);
+    const d=data.draft;
+    body.innerHTML=`
+      <div class="sec">核心要点</div>
+      <div class="kp">${(d.keyPoints||[]).map((p,j)=>`${j+1}. ${p}`).join('\n')}</div>
+      <div class="sec">小红书草稿</div>
+      <div class="draft" id="draft${i}">${d.xhsDraft||''}</div>
+      <button class="copy" id="cp${i}" onclick="copyDraft(${i})">复制草稿</button>
+      <div class="sec">话题标签</div>
+      <div class="tags">${(d.tags||[]).map(t=>`<span class="tag">#${t}</span>`).join('')}</div>
+    `;
+    body.classList.add('open');
+    btn.textContent='重新生成';
+    btn.classList.remove('loading');
+    btn.disabled=false;
+  }catch(err){
+    body.innerHTML=`<div class="err" style="margin:12px 0">出错了：${err.message}</div>`;
+    body.classList.add('open');
+    btn.textContent='重试';
+    btn.classList.remove('loading');
+    btn.disabled=false;
+  }
+}
+async function copyDraft(i){
+  const text=document.getElementById(`draft${i}`).textContent;
+  await navigator.clipboard.writeText(text);
+  const btn=document.getElementById(`cp${i}`);
+  btn.textContent='已复制 ✓';
+  btn.classList.add('done');
+  setTimeout(()=>{btn.textContent='复制草稿';btn.classList.remove('done')},2000);
 }
 </script>
 </body>
