@@ -23,8 +23,7 @@
   .cn{font-size:13px;font-weight:600;color:var(--ink);line-height:1.35;margin-bottom:3px}
   .ct{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
   .bar{position:fixed;bottom:0;left:0;right:0;background:var(--paper);border-top:1px solid var(--border);padding:14px 40px;display:flex;gap:12px;align-items:center;z-index:100}
-  .sel{flex:1;font-size:13px;color:var(--muted)}
-  .sel strong{color:var(--ink)}
+  .sel{flex:1;font-size:13px;color:var(--muted)}.sel strong{color:var(--ink)}
   select{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:9px 14px;font-family:'Noto Serif SC',serif;font-size:13px;color:var(--ink);outline:none;cursor:pointer}
   .btn{background:var(--accent);color:white;border:none;border-radius:4px;padding:10px 28px;font-family:'Noto Serif SC',serif;font-size:14px;cursor:pointer;transition:opacity .15s;white-space:nowrap}
   .btn:hover{opacity:.88}.btn:disabled{opacity:.35;cursor:not-allowed}
@@ -39,7 +38,7 @@
   .vc-info{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
   .vc-btn{background:transparent;border:1px solid var(--border);border-radius:4px;padding:6px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
   .vc-btn:hover{border-color:var(--accent);color:var(--accent)}
-  .vc-btn.loading{opacity:.5;cursor:not-allowed}
+  .vc-btn:disabled{opacity:.5;cursor:not-allowed}
   .vc-body{display:none;padding:4px 16px 16px 50px;border-top:1px solid var(--border)}
   .vc-body.open{display:block}
   .sec{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
@@ -51,9 +50,6 @@
   .tag{background:var(--paper2);border:1px solid var(--border);border-radius:3px;padding:3px 9px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
   .empty{text-align:center;padding:60px 20px;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px}
   .err{background:#fff0ee;border:1px solid #e8b8b0;border-radius:4px;padding:12px 16px;font-size:13px;color:var(--accent);margin:12px 0}
-  .badge{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;border-radius:3px;margin-left:8px}
-  .badge.live{background:#d4edda;color:#2a7c6f}
-  .badge.ai{background:#fff3cd;color:#856404}
 </style>
 </head>
 <body>
@@ -62,24 +58,17 @@
   <span>YouTube → 小红书草稿</span>
 </header>
 <div class="main">
-  <div class="cat">科学硬核派</div>
-  <div class="grid" id="g1"></div>
-  <div class="cat">女性健康专项</div>
-  <div class="grid" id="g2"></div>
-  <div class="cat">顶级访谈节目</div>
-  <div class="grid" id="g3"></div>
-  <div class="cat">营养 & 生物黑客</div>
-  <div class="grid" id="g4"></div>
+  <div class="cat">科学硬核派</div><div class="grid" id="g1"></div>
+  <div class="cat">女性健康专项</div><div class="grid" id="g2"></div>
+  <div class="cat">顶级访谈节目</div><div class="grid" id="g3"></div>
+  <div class="cat">营养 & 生物黑客</div><div class="grid" id="g4"></div>
   <div class="status" id="status"></div>
   <div id="errBox"></div>
-  <div id="results"><div class="empty">选择频道后点击抓取，先获取最新视频列表，再逐一生成草稿</div></div>
+  <div id="results"><div class="empty">选择频道后点击抓取，获取最新视频后逐一生成草稿</div></div>
 </div>
 <div class="bar">
   <div class="sel" id="selDisplay">请先选择一个频道</div>
-  <select id="countSel">
-    <option value="3" selected>最新 3 集</option>
-    <option value="5">最新 5 集</option>
-  </select>
+  <select id="countSel"><option value="3" selected>最新 3 集</option><option value="5">最新 5 集</option></select>
   <button class="btn" id="fetchBtn" onclick="fetchVideos()" disabled>获取最新视频</button>
 </div>
 <script>
@@ -89,6 +78,23 @@ const CHANNELS={
   g3:[{n:'The Diary of a CEO – Steven Bartlett',t:'顶级访谈 · 健康 · 表现'},{n:'The Proof – Simon Hill',t:'营养科学访谈'},{n:'On Purpose – Jay Shetty',t:'心理健康 · 正念'}],
   g4:[{n:'Ben Greenfield Life',t:'生物黑客 · 运动表现'},{n:'NutritionFacts.org – Dr. Greger',t:'植物营养 · 疾病预防'},{n:'Shawn Stevenson – The Model Health Show',t:'睡眠 · 代谢 · 心理'}]
 };
+
+const CHANNEL_IDS={
+  'Huberman Lab':'UC2D2CMWXMOVWx7giW1n3LIg',
+  'Peter Attia – The Drive':'UC8kGsMa0LygSX9nkBcBH1Sg',
+  'Found My Fitness – Rhonda Patrick':'UCWB8HkRd_dMHV7e_z7FBWIA',
+  'Dr. Mark Hyman':'UC5IuDMmKWSsBFB0iKky6aEQ',
+  'ZOE – Tim Spector':'UCMbHMCOh0g-YX4ZcWFzKZjQ',
+  'Dr. Mindy Pelz':'UC4cNjUPc2gQKucX3hLUayYQ',
+  'Mel Robbins':'UCk2U-Oqn7RXf-ydPqfSxG5g',
+  'The Diary of a CEO – Steven Bartlett':'UCGq-a57w-aPwyi3pW7XLiHw',
+  'The Proof – Simon Hill':'UCfAFLXCcKQlTt3MgCnFRyJg',
+  'On Purpose – Jay Shetty':'UCmJB-CbFQMTKA8ESBHEndlA',
+  'Ben Greenfield Life':'UCI1QnEbcK8w3QQ_lRIOfJDg',
+  'NutritionFacts.org – Dr. Greger':'UCman6j6KRPB_oTlRqkZCjuA',
+  'Shawn Stevenson – The Model Health Show':'UCT1GT5ku7gKmMGO7fDO4RxQ'
+};
+
 let selected=null;
 Object.entries(CHANNELS).forEach(([gid,chs])=>{
   const grid=document.getElementById(gid);
@@ -109,22 +115,50 @@ Object.entries(CHANNELS).forEach(([gid,chs])=>{
     grid.appendChild(card);
   });
 });
+
 function setStatus(msg,loading=false){
   document.getElementById('status').innerHTML=loading?`<div class="spin"></div>${msg}`:msg;
 }
+
+function decodeXML(str){
+  return str.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,'$1').trim();
+}
+
+function parseRSS(xml, count){
+  const entries=[];
+  const re=/<entry>([\s\S]*?)<\/entry>/g;
+  let m;
+  while((m=re.exec(xml))!==null && entries.length<count){
+    const e=m[1];
+    const title=decodeXML((e.match(/<title[^>]*>(.*?)<\/title>/)||[])[1]||'');
+    const published=((e.match(/<published>(.*?)<\/published>/)||[])[1]||'').slice(0,10);
+    const videoId=(e.match(/<yt:videoId>(.*?)<\/yt:videoId>/)||[])[1]||'';
+    const desc=decodeXML((e.match(/<media:description>([\s\S]*?)<\/media:description>/)||[])[1]||'').slice(0,500);
+    if(title&&videoId) entries.push({title,published,videoId,description:desc,url:`https://www.youtube.com/watch?v=${videoId}`});
+  }
+  return entries;
+}
+
 async function fetchVideos(){
   if(!selected)return;
-  const count=document.getElementById('countSel').value;
+  const count=parseInt(document.getElementById('countSel').value);
   document.getElementById('errBox').innerHTML='';
   document.getElementById('results').innerHTML='';
   document.getElementById('fetchBtn').disabled=true;
   setStatus('正在抓取最新视频列表…',true);
+
   try{
-    const res=await fetch('/api/rss',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channel:selected,count:parseInt(count)})});
+    const channelId=CHANNEL_IDS[selected];
+    const proxyUrl=`https://api.allorigins.win/get?url=${encodeURIComponent('https://www.youtube.com/feeds/videos.xml?channel_id='+channelId)}`;
+    const res=await fetch(proxyUrl);
+    if(!res.ok) throw new Error(`抓取失败 ${res.status}`);
     const data=await res.json();
-    if(!data.ok)throw new Error(data.error);
-    setStatus(`已获取 ${data.videos.length} 条视频，点击「生成草稿」逐一处理`);
-    renderVideos(data.videos);
+    const xml=data.contents;
+    if(!xml||!xml.includes('<entry>')) throw new Error('RSS 内容为空，请稍后重试');
+    const videos=parseRSS(xml,count);
+    if(!videos.length) throw new Error('没有找到视频');
+    setStatus(`已获取 ${videos.length} 条最新视频，点击「生成草稿」处理`);
+    renderVideos(videos);
   }catch(err){
     setStatus('');
     document.getElementById('errBox').innerHTML=`<div class="err">出错了：${err.message}</div>`;
@@ -132,9 +166,10 @@ async function fetchVideos(){
     document.getElementById('fetchBtn').disabled=false;
   }
 }
+
 function renderVideos(videos){
   document.getElementById('results').innerHTML=videos.map((v,i)=>`
-    <div class="video-card" id="vc${i}">
+    <div class="video-card">
       <div class="vc-head">
         <div class="vc-num">0${i+1}</div>
         <div class="vc-meta">
@@ -148,14 +183,18 @@ function renderVideos(videos){
   `).join('');
   window._videos=videos;
 }
+
 async function generateDraft(i){
   const btn=document.getElementById(`dbtn${i}`);
   const body=document.getElementById(`vb${i}`);
   btn.textContent='生成中…';
-  btn.classList.add('loading');
   btn.disabled=true;
   try{
-    const res=await fetch('/api/draft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channel:selected,video:window._videos[i]})});
+    const res=await fetch('/api/draft',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({channel:selected,video:window._videos[i]})
+    });
     const data=await res.json();
     if(!data.ok)throw new Error(data.error);
     const d=data.draft;
@@ -170,22 +209,19 @@ async function generateDraft(i){
     `;
     body.classList.add('open');
     btn.textContent='重新生成';
-    btn.classList.remove('loading');
     btn.disabled=false;
   }catch(err){
     body.innerHTML=`<div class="err" style="margin:12px 0">出错了：${err.message}</div>`;
     body.classList.add('open');
     btn.textContent='重试';
-    btn.classList.remove('loading');
     btn.disabled=false;
   }
 }
+
 async function copyDraft(i){
-  const text=document.getElementById(`draft${i}`).textContent;
-  await navigator.clipboard.writeText(text);
+  await navigator.clipboard.writeText(document.getElementById(`draft${i}`).textContent);
   const btn=document.getElementById(`cp${i}`);
-  btn.textContent='已复制 ✓';
-  btn.classList.add('done');
+  btn.textContent='已复制 ✓';btn.classList.add('done');
   setTimeout(()=>{btn.textContent='复制草稿';btn.classList.remove('done')},2000);
 }
 </script>
