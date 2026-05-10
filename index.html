@@ -414,23 +414,15 @@ async function fetchContent() {
   document.getElementById('errorBox').innerHTML = '';
   document.getElementById('results').innerHTML = '';
   document.getElementById('fetchBtn').disabled = true;
-  setStatus('正在生成草稿，稍等…', true);
-
-  const prompt = `你是我的健康内容研究助手，帮我整理 YouTube 频道「${selectedChannel}」最新 ${count} 期内容，并生成小红书草稿。
-
-目标读者：30-45岁中国女性，关注健康/抗衰老/激素/睡眠/情绪/营养，有知识背景但非医学专业。
-
-草稿风格：像懂科学的好朋友分享，不是专家讲课。开头有吸引力，有具体可操作建议，适当用emoji，用"我"不用"小编"，把复杂概念用生活化语言解释。
-
-只返回JSON数组，不要任何其他文字：
-[{"title":"原视频英文标题","date":"发布时间","topic":"核心话题（中文一句）","keyPoints":["要点1","要点2","要点3","要点4","要点5"],"xhsTitle":"小红书标题（emoji+20字内）","xhsDraft":"小红书正文（500字内，口语化，结尾有互动引导）","tags":["标签1","标签2","标签3","标签4","标签5"]}]`;
+  setStatus('正在抓取最新内容并生成草稿，稍等 20-30 秒…', true);
 
   try {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        messages: [{ role: 'user', content: prompt }]
+        channel: selectedChannel,
+        count: parseInt(count)
       })
     });
 
